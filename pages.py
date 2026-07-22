@@ -381,7 +381,7 @@ TRUST_PAGE_TEMPLATE = '''<!DOCTYPE html>
         <h4>代码开源</h4>
         <p>协议合约、服务端代码全部开源。任何人都可以审查代码里有没有"后门"。任何人都可以自己跑一个验证节点。</p>
         <div class="code-block">
-          <span class="key">GitHub:</span> github.com/nous-hermes/buyi-trust
+          <span class="key">GitHub:</span> github.com/liusiyitony/buyi-trust
         </div>
       </div>
     </div>
