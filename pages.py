@@ -168,6 +168,10 @@ CERT_PAGE_TEMPLATE = '''<!DOCTYPE html>
     </div>
     {% endif %}
     <div class="proof-row">
+      <span class="label">🔍 直接查链</span>
+      <a href="https://basescan.org" target="_blank" style="color:#c8a84e;text-decoration:none;font-size:11px;">BaseScan → 搜EAS合约查attestation → 自己核对Hash</a>
+    </div>
+    <div class="proof-row">
       <span class="label">⏰ 创建时间</span>
       <span>{{ cert.createdAt[:10] }}</span>
     </div>
@@ -205,6 +209,9 @@ function share(platform) {
 @page_bp.route('/<cert_id>')
 def cert_page(cert_id):
     """Render the certificate share page."""
+    if cert_id == '' or cert_id == '/':
+        return render_template_string(TRUST_PAGE_TEMPLATE)
+    
     db = get_db()
     row = db.execute(
         "SELECT cert_json FROM certificates WHERE cert_id = ?", (cert_id,)
