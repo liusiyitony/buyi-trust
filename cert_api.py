@@ -101,8 +101,8 @@ def create_certificate():
         "createdAt": now.isoformat(),
         "expectedVerifyAt": expected_verify.isoformat(),
         "proof": {
-            "schemaCert": "buyi-decision-cert-v1",
-            "schemaVerify": "buyi-decision-verify-v1",
+            "schemaCert": "0xfae61079081cb7b718a8b4a1eb8925b8abac936c067538099653ad18cfc148a8",
+            "schemaVerify": "PENDING",
             "certHash": "",  # computed below after cert is fully built
         }
     }

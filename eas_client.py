@@ -31,9 +31,9 @@ SCHEMA_REGISTRY_BASE = "0x4200000000000000000000000000000000000020"
 SIGNER_PRIVATE_KEY = os.getenv("BUYI_SIGNER_KEY", "")
 SIGNER_ADDRESS = os.getenv("BUYI_SIGNER_ADDRESS", "")
 
-# Schema UIDs (to be registered once on Base)
-SCHEMA_CERT = "buyi-decision-cert-v1"    # DecisionCertificate
-SCHEMA_VERIFY = "buyi-decision-verify-v1" # DecisionVerification
+# Schema UIDs (registered on Base)
+SCHEMA_CERT = "0xfae61079081cb7b718a8b4a1eb8925b8abac936c067538099653ad18cfc148a8"    # DecisionCertificate
+SCHEMA_VERIFY = "PENDING"  # DecisionVerification — register Schema 2
 
 
 # ── Offchain Attestation ────────────────────────────────────────────
