@@ -48,11 +48,11 @@ def _hash_field(value: str) -> str:
 def create_certificate():
     data = request.get_json(silent=True) or {}
 
-    # Required fields
-    provider_type = data.get('provider_type', 'agent')
-    provider_id   = data.get('provider_id', 'buyi-decision-engine')
-    provider_name = data.get('provider_name', '不思议决策引擎')
-    category      = data.get('category', '事业决策')
+    # Required fields (provider optional — defaults to "self" for C-end self-service)
+    provider_type = data.get('provider_type', 'person')
+    provider_id   = data.get('provider_id', 'self')
+    provider_name = data.get('provider_name', '个人判断')
+    category      = data.get('category', '')
     service_type  = data.get('service_type', 'predictive')
     question      = data.get('question', '')
     conclusion    = data.get('conclusion', '')
@@ -267,3 +267,66 @@ def get_reputation(provider_id):
     rep = compute_reputation(certs)
 
     return jsonify(rep)
+
+
+# ── POST /api/cert/<id>/claim — B端认领许愿签 ──────────────────────
+@cert_bp.route('/<cert_id>/claim', methods=['POST'])
+def claim_certificate(cert_id):
+    """
+    A B-end provider claims a self-service wish cert that was created by a C-end user.
+    This adds the provider's professional analysis to the existing cert.
+    """
+    data = request.get_json(silent=True) or {}
+    provider_id = data.get('provider_id')
+    provider_name = data.get('provider_name')
+    provider_type = data.get('provider_type', 'agent')
+    analysis = data.get('analysis', '')
+    confidence = data.get('confidence', 0)
+
+    if not provider_id or not provider_name:
+        return jsonify({"error": "provider_id and provider_name are required"}), 400
+
+    db = get_db()
+    row = db.execute(
+        "SELECT cert_json FROM certificates WHERE cert_id = ?", (cert_id,)
+    ).fetchone()
+
+    if not row:
+        return jsonify({"error": "certificate not found"}), 404
+
+    cert = json.loads(row["cert_json"])
+
+    if cert["provider"]["id"] != "self":
+        return jsonify({"error": "only self-service certs can be claimed", "current_provider": cert["provider"]["name"]}), 409
+
+    # Update provider info
+    cert["provider"] = {
+        "type": provider_type,
+        "id": provider_id,
+        "name": provider_name,
+    }
+
+    # Append provider analysis to conclusion if provided
+    if analysis:
+        cert["service"]["conclusion"] = f"{cert['service']['conclusion']}  【{provider_name}分析】{analysis}"
+        cert["service"]["conclusionHash"] = _hash_field(cert["service"]["conclusion"])
+
+    if confidence:
+        cert["service"]["confidence"] = min(100, max(0, int(confidence)))
+
+    # Re-hash
+    cert_str = json.dumps(cert, sort_keys=True, ensure_ascii=False)
+    cert["proof"]["certHash"] = _hash_field(cert_str)
+
+    db.execute(
+        "UPDATE certificates SET cert_json = ?, updated_at = ? WHERE cert_id = ?",
+        (json.dumps(cert, ensure_ascii=False), datetime.now(timezone.utc).isoformat(), cert_id)
+    )
+    db.commit()
+
+    return jsonify({
+        "status": "claimed",
+        "cert_id": cert_id,
+        "provider": cert["provider"],
+        "shareUrl": f"https://cert.diubige.com/{cert_id}",
+    })
