@@ -288,9 +288,7 @@ LEADERBOARD_TEMPLATE = '''<!DOCTYPE html>
       </div>
       <div class="rank-score">
         <div class="lingli">{{ p.score }}</div>
-        <div class="rate {% if p.rate >= 70 %}good{% endif %}">
-          {% if p.rate is not none %}{{ p.rate }}% 灵验{% else %}待积累{% endif %}
-        </div>
+        <div class="rate {% if p.rate is not none and p.rate >= 70 %}good{% endif %}">{% if p.rate is not none %}{{ p.rate }}% 灵验{% else %}待积累{% endif %}</div>
       </div>
     </div>
     {% endfor %}
