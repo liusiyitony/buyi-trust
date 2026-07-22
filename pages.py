@@ -409,7 +409,7 @@ TRUST_PAGE_TEMPLATE = '''<!DOCTYPE html>
     <div class="trust-layer">
       <div class="num">④</div>
       <div class="body">
-        <h4>香港持牌实体运营</h4>
+        <h4>法律实体运营</h4>
         <p>有法律主体可追溯，不是匿名项目。接受监管，合规运营。</p>
       </div>
     </div>
@@ -464,22 +464,7 @@ TRUST_PAGE_TEMPLATE = '''<!DOCTYPE html>
         <div class="icon">🔐</div>
         <div class="label">SHA256 (NIST)</div>
       </div>
-      <div class="badge">
-        <div class="icon">🇭🇰</div>
-        <div class="label">香港持牌实体</div>
-      </div>
     </div>
-  </div>
-
-  <!-- 国内版 -->
-  <div class="section">
-    <h2>🇨🇳 国内用户</h2>
-    <p style="font-size:13px;color:#8a8570;">
-      不用链、不用 VPN、不用 MetaMask。<br>
-      每次服务生成 SHA256 Hash → 发布到公众号定时文章（不可撤回）→ 任何人可以对 Hash 验证。<br>
-      公众号文章是腾讯的数据库，不是我们的——你改不了已发布的文章。<br>
-      不需要区块链，达到同样的"不可篡改"效果。
-    </p>
   </div>
 
   <div style="text-align:center; padding:30px 0;">
