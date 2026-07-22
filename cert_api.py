@@ -102,7 +102,7 @@ def create_certificate():
         "expectedVerifyAt": expected_verify.isoformat(),
         "proof": {
             "schemaCert": "0xfae61079081cb7b718a8b4a1eb8925b8abac936c067538099653ad18cfc148a8",
-            "schemaVerify": "PENDING",
+            "schemaVerify": "0xc05ace5cdbf06b65c71e2352056ccffef3706f281e296197fb15e2481712bd7d",
             "certHash": "",  # computed below after cert is fully built
         }
     }

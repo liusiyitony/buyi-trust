@@ -33,7 +33,7 @@ SIGNER_ADDRESS = os.getenv("BUYI_SIGNER_ADDRESS", "")
 
 # Schema UIDs (registered on Base)
 SCHEMA_CERT = "0xfae61079081cb7b718a8b4a1eb8925b8abac936c067538099653ad18cfc148a8"    # DecisionCertificate
-SCHEMA_VERIFY = "PENDING"  # DecisionVerification — register Schema 2
+SCHEMA_VERIFY = "0xc05ace5cdbf06b65c71e2352056ccffef3706f281e296197fb15e2481712bd7d"   # DecisionVerification
 
 
 # ── Offchain Attestation ────────────────────────────────────────────
@@ -204,24 +204,114 @@ def batch_timestamp_onchain(attestations: list[dict]) -> dict:
     
     merkle_root = compute_merkle_root(attestations)
     
-    # In production:
-    #   eas.attest({
-    #     schema: SCHEMA_DAILY_ROOT,
-    #     data: {
-    #       "merkleRoot": merkle_root,
-    #       "date": today,
-    #       "count": len(attestations),
-    #     }
-    #   })
+    return _submit_onchain(
+        schema_uid=SCHEMA_CERT,
+        data={
+            "merkleRoot": merkle_root,
+            "date": time.strftime("%Y-%m-%d"),
+            "count": len(attestations),
+        },
+    )
+
+
+# ── Onchain EAS Attestation via Web3 ─────────────────────────────────
+def _submit_onchain(schema_uid: str, data: dict) -> dict:
+    """
+    Submit an onchain attestation to EAS on Base.
+    Uses web3.py to call the EAS contract.
     
-    # For now, log the Merkle root (onchain submission added when signer is funded)
-    return {
-        "status": "computed",
-        "merkleRoot": merkle_root,
-        "count": len(attestations),
-        "uids": [a["uid"] for a in attestations],
-        "note": "Onchain submission pending — signer address needs Base ETH for gas",
-    }
+    Requirements:
+      pip install web3
+      SIGNER_PRIVATE_KEY env var set
+      Signer address has ~$0.001 ETH on Base
+    """
+    try:
+        from web3 import Web3
+        
+        if not SIGNER_PRIVATE_KEY:
+            return {
+                "status": "offchain_only",
+                "merkleRoot": data.get("merkleRoot", ""),
+                "count": data.get("count", 0),
+                "note": "Onchain disabled — set BUYI_SIGNER_KEY for real onchain attestation",
+            }
+        
+        w3 = Web3(Web3.HTTPProvider("https://mainnet.base.org"))
+        account = w3.eth.account.from_key(SIGNER_PRIVATE_KEY)
+        
+        # EAS contract ABI (minimal — attest function)
+        eas_abi = [
+            {
+                "inputs": [
+                    {"name": "request", "type": "tuple", "components": [
+                        {"name": "schema", "type": "bytes32"},
+                        {"name": "data", "type": "tuple", "components": [
+                            {"name": "recipient", "type": "address"},
+                            {"name": "expirationTime", "type": "uint64"},
+                            {"name": "revocable", "type": "bool"},
+                            {"name": "refUID", "type": "bytes32"},
+                            {"name": "data", "type": "bytes"},
+                            {"name": "value", "type": "uint256"},
+                        ]},
+                    ]},
+                ],
+                "name": "attest",
+                "outputs": [{"name": "", "type": "bytes32"}],
+                "stateMutability": "payable",
+                "type": "function",
+            },
+        ]
+        
+        eas = w3.eth.contract(address=EAS_CONTRACT_BASE, abi=eas_abi)
+        
+        # Encode the data according to schema
+        encoded_data = bytes(data.get("merkleRoot", ""), "utf-8")[:32].ljust(32, b'\x00')
+        
+        tx = eas.functions.attest({
+            "schema": Web3.to_bytes(hexstr=schema_uid),
+            "data": {
+                "recipient": account.address,
+                "expirationTime": 0,
+                "revocable": False,
+                "refUID": Web3.to_bytes(hexstr="0x" + "00" * 32),
+                "data": encoded_data,
+                "value": 0,
+            },
+        }).build_transaction({
+            "from": account.address,
+            "chainId": 8453,
+            "gas": 200000,
+            "maxFeePerGas": w3.to_wei("0.001", "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei("0.0001", "gwei"),
+            "nonce": w3.eth.get_transaction_count(account.address),
+        })
+        
+        signed = account.sign_transaction(tx)
+        tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+        receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
+        
+        return {
+            "status": "confirmed",
+            "txHash": receipt.transactionHash.hex(),
+            "blockNumber": receipt.blockNumber,
+            "gasUsed": receipt.gasUsed,
+            "merkleRoot": data.get("merkleRoot", ""),
+            "count": data.get("count", 0),
+        }
+        
+    except ImportError:
+        return {
+            "status": "offchain_only",
+            "merkleRoot": data.get("merkleRoot", ""),
+            "count": data.get("count", 0),
+            "note": "install web3.py: pip install web3",
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "merkleRoot": data.get("merkleRoot", ""),
+            "error": str(e)[:200],
+        }
 
 
 # ── Schema Registration (one-time setup) ────────────────────────────
