@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from flask import Flask
 from cert_api import cert_bp
 from pages import page_bp
+from agent_builder import register_agent_routes, AGENTS
 from db import init_db, close_db
 
 
@@ -29,6 +30,7 @@ def create_app() -> Flask:
     # Register blueprints
     app.register_blueprint(cert_bp)   # /api/cert/*
     app.register_blueprint(page_bp)   # /<cert_id>, /, /leaderboard
+    register_agent_routes(app)        # /api/agents, /api/agent/<id>/chat
     
     # Serve static files (widget.js, etc.)
     import os as _os

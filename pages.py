@@ -573,3 +573,70 @@ def cert_page(cert_id):
 def trust_page():
     """Render the trust landing page."""
     return render_template_string(TRUST_PAGE_TEMPLATE)
+
+
+@page_bp.route('/agents')
+def agents_page():
+    """Render the agent showcase page."""
+    from agent_builder import get_agent_profiles
+    agents = get_agent_profiles()
+    
+    html = '''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🤖 经典分身 · 丢笔哥Agent</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; background: #0a0a0f; color: #e0d5c0; line-height: 1.7; }
+    .container { max-width: 680px; margin: 0 auto; padding: 40px 20px; }
+    .hero { text-align: center; padding: 40px 0; border-bottom: 1px solid #c8a84e22; }
+    .hero h1 { font-size: 28px; color: #fff; } .hero .gold { color: #c8a84e; }
+    .hero p { color: #8a8570; margin-top: 8px; font-size: 14px; }
+    .agent-card {
+      display: flex; gap: 16px; align-items: flex-start; padding: 20px; margin: 16px 0;
+      border: 1px solid #ffffff08; border-radius: 14px; background: #ffffff03;
+    }
+    .agent-emoji { font-size: 36px; min-width: 48px; text-align: center; }
+    .agent-info { flex: 1; }
+    .agent-name { font-size: 18px; font-weight: 600; color: #fff; }
+    .agent-source { font-size: 12px; color: #c8a84e; margin-bottom: 6px; }
+    .agent-concepts { font-size: 12px; color: #8a8570; }
+    .agent-chat-btn {
+      display: inline-block; margin-top: 10px; padding: 8px 18px;
+      border-radius: 10px; background: #c8a84e; color: #0a0a0f; text-decoration: none;
+      font-size: 13px; font-weight: 600;
+    }
+    .nav { text-align: center; padding: 10px 0; }
+    .nav a { color: #c8a84e; text-decoration: none; margin: 0 16px; font-size: 14px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="hero">
+    <h1>🤖 丢笔哥<span class="gold">经典分身</span></h1>
+    <p>六位先贤，六种智慧。你可以跟任何一位对话。<br>每次对话中给出的判断都会自动生成许愿签。</p>
+  </div>
+  <div class="nav">
+    <a href="/">🏠 首页</a>
+    <a href="/leaderboard">🏆 信用榜</a>
+    <a href="/agents">🤖 经典分身</a>
+  </div>
+'''
+    for a in agents:
+        html += f'''
+  <div class="agent-card">
+    <div class="agent-emoji">{a["emoji"]}</div>
+    <div class="agent-info">
+      <div class="agent-name">{a["name"]}</div>
+      <div class="agent-source">经典来源：{a["source"]}</div>
+      <div class="agent-concepts">核心概念：{", ".join(a["concepts"])}</div>
+    </div>
+  </div>'''
+    
+    html += '''
+</div>
+</body>
+</html>'''
+    return render_template_string(html)
