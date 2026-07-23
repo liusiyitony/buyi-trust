@@ -1,16 +1,28 @@
 {
-  "timestamp": "2026-07-23T02:49:33.395921+00:00",
+  "timestamp": "2026-07-23T05:19:28.214088+00:00",
   "sources_processed": 1,
-  "predictions_found": 1,
-  "certs_created": 0,
+  "predictions_found": 2,
+  "certs_created": 2,
   "results": [
     {
-      "source": "宝玉",
-      "category": "AI趋势",
-      "question": "关于年第 65 届国际数学奥林匹克上，陶哲轩...的判断",
-      "conclusion": "年第 65 届国际数学奥林匹克上，陶哲轩做了一次 AI 和数学的演讲，非常精彩，从数学使用计算计算机的历史开始讲起，一直讲到大语言模型，干货相当多，尤其适合对数学",
-      "confidence": 60,
-      "timeframe": ""
+      "source": "神鱼",
+      "category": "Web3预测",
+      "question": "What is the core theme for this year?",
+      "conclusion": "Knowledge will be memoized, methods will become skills, work will be looped, and products will become RaaS (Result as a Service), with agents directly delivering results.",
+      "confidence": 85,
+      "timeframe": "end of 2025",
+      "cert_id": "BUYI-20260723-72871",
+      "cert_url": "https://cert.diubige.com/BUYI-20260723-72871"
+    },
+    {
+      "source": "神鱼",
+      "category": "Web3预测",
+      "question": "What are the key future events for Bitcoin?",
+      "conclusion": "BTC halving will occur in April 2024, family offices and wealth managers will allocate to BTC ETFs by June 2024, sovereign wealth funds will start allocating to ETFs at an unknown time, and central banks will accumulate BTC as digital gold at an unknown time.",
+      "confidence": 80,
+      "timeframe": "2024-2026",
+      "cert_id": "BUYI-20260723-73387",
+      "cert_url": "https://cert.diubige.com/BUYI-20260723-73387"
     }
   ]
 }

@@ -21,23 +21,43 @@ DEFAULT_VERIFY_DAYS = 90  # KOL predictions often need longer verification
 # ── KOL Sources ─────────────────────────────────────────────────────
 # Format: {name, url, category, type}
 KOL_SOURCES = [
-    # Financial / Investment
+    # ── 金融投资 ──────────────────────────────────────────
     {"name": "洪灏", "category": "金融预测", "type": "person",
      "sources": ["https://twitter.com/HAOHONG_CFA"]},
-    {"name": "李笑来", "category": "金融预测", "type": "person",
-     "sources": ["https://twitter.com/xiaolai"]},
+    {"name": "李蓓", "category": "金融预测", "type": "person",
+     "sources": ["https://weibo.com/u/1864302614"]},
+    {"name": "但斌", "category": "金融预测", "type": "person",
+     "sources": ["https://weibo.com/danbin"]},
+    {"name": "任泽平", "category": "宏观预测", "type": "person",
+     "sources": ["https://weibo.com/renzeping"]},
     
-    # AI / Tech
+    # ── AI / 科技 ─────────────────────────────────────────
     {"name": "宝玉", "category": "AI趋势", "type": "person",
      "sources": ["https://twitter.com/dotey"]},
+    {"name": "李开复", "category": "AI趋势", "type": "person",
+     "sources": ["https://twitter.com/kaifulee"]},
     
-    # Crypto / Web3
+    # ── Web3 ──────────────────────────────────────────────
     {"name": "神鱼", "category": "Web3预测", "type": "person",
      "sources": ["https://twitter.com/BitFish"]},
+    {"name": "Dovey Wan", "category": "Web3预测", "type": "person",
+     "sources": ["https://twitter.com/DoveyWan"]},
     
-    # Macro / 宏观经济
-    {"name": "任泽平", "category": "宏观预测", "type": "person",
-     "sources": ["https://mp.weixin.qq.com/s?__biz=MzA3NDM4NzA4NQ=="]},
+    # ── 身心灵 ────────────────────────────────────────────
+    {"name": "武志红", "category": "身心灵", "type": "person",
+     "sources": ["https://weibo.com/wuzhihong"]},
+    {"name": "张德芬", "category": "身心灵", "type": "person",
+     "sources": ["https://weibo.com/tiffanychang"]},
+    {"name": "李雪", "category": "身心灵", "type": "person",
+     "sources": ["https://weibo.com/lixue"]},
+    {"name": "樊登", "category": "知识IP", "type": "person",
+     "sources": ["https://weibo.com/fandeng"]},
+    
+    # ── 家庭教育 ──────────────────────────────────────────
+    {"name": "尹建莉", "category": "家庭教育", "type": "person",
+     "sources": ["https://weibo.com/yinjianli"]},
+    {"name": "王人平", "category": "家庭教育", "type": "person",
+     "sources": ["https://weibo.com/wangrenping"]},
 ]
 
 # ── Prediction Extraction Prompt ────────────────────────────────────
@@ -152,9 +172,26 @@ def extract_predictions(content: str) -> list[dict]:
 
 def extract_via_llm(content: str) -> list[dict] | None:
     """Use OpenAI-compatible API to extract predictions."""
-    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("OPENAI_API_KEY")
-    api_base = os.getenv("DEEPSEEK_API_BASE", "https://api.deepseek.com/v1")
+    # Try reading API key from Hermes config first
+    api_key = None
+    api_base = "https://api.deepseek.com/v1"
+    model = "deepseek-v4-flash"  # Fast & cheap for extraction
     
+    try:
+        import yaml
+        config_path = os.path.expanduser("~/.hermes/config.yaml")
+        if os.path.exists(config_path):
+            with open(config_path) as f:
+                c = yaml.safe_load(f.read())
+            ds = c.get("providers", {}).get("deepseek", {})
+            api_key = ds.get("api_key", "")
+            api_base = ds.get("base_url", api_base)
+    except Exception:
+        pass
+    
+    # Fallback to env vars
+    if not api_key:
+        api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("OPENAI_API_KEY")
     if not api_key:
         return None
     
