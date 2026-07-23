@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-07-23T02:49:33.395921+00:00",
+  "sources_processed": 1,
+  "predictions_found": 1,
+  "certs_created": 0,
+  "results": [
+    {
+      "source": "宝玉",
+      "category": "AI趋势",
+      "question": "关于年第 65 届国际数学奥林匹克上，陶哲轩...的判断",
+      "conclusion": "年第 65 届国际数学奥林匹克上，陶哲轩做了一次 AI 和数学的演讲，非常精彩，从数学使用计算计算机的历史开始讲起，一直讲到大语言模型，干货相当多，尤其适合对数学",
+      "confidence": 60,
+      "timeframe": ""
+    }
+  ]
+}

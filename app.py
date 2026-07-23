@@ -27,8 +27,22 @@ def create_app() -> Flask:
     app.config['JSON_AS_ASCII'] = False
     
     # Register blueprints
-    app.register_blueprint(cert_bp)   # /api/certificate/*
-    app.register_blueprint(page_bp)   # /<cert_id>
+    app.register_blueprint(cert_bp)   # /api/cert/*
+    app.register_blueprint(page_bp)   # /<cert_id>, /, /leaderboard
+    
+    # Serve static files (widget.js, etc.)
+    import os as _os
+    static_dir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'static')
+    
+    @app.route('/widget.js')
+    def widget_js():
+        from flask import send_from_directory
+        return send_from_directory(static_dir, 'widget.js', mimetype='application/javascript')
+    
+    @app.route('/widget.css')
+    def widget_css():
+        from flask import send_from_directory
+        return send_from_directory(static_dir, 'widget.css', mimetype='text/css')
     
     # Teardown
     app.teardown_appcontext(close_db)
